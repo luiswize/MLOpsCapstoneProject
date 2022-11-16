@@ -7,6 +7,12 @@ from typing import List
 
 
 def parse_email_document(path: str) -> pd.DataFrame:
+    """
+    Parses email raw file into a dataframe
+    """
+    
+    # TODO: Some files have encoding troubles, as there are asci characteres that raises troubles in the open() block
+    # TODO: Fix the encoding characters trouble
     try:
         with open(path) as f:
             contents = f.read()
