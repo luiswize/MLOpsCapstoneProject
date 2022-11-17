@@ -48,6 +48,22 @@ In this point we are ready to go! 🚀🚀
 #### How to use `dvc`
 Once we have seted up dvc, we can `add`, `pull` or `push` the data we wish.
 
+1. Chechout to your development branch in git.
+```
+git checkout -b dvc-test 
+```
+2. Modify our data, work in your features.
+```
+git add files
+git tag -a version_name -m "This is version name .... "
+```
+
+3. In yout branch, bring the versioned data tou need, internally git takes the .dvc file and bring the data associated to the tag
+```
+dvc pull
+```
+
+
 Similar to `git add file_path`, `dvc add file_path` adds the files to the dvc versioning 
 ```
 dvc add file_path
@@ -106,3 +122,10 @@ dvc pull # this brings the data from  versionB tag
 
 
 ### Bring the initial dvc data to your local environment
+Inside the `main` branch
+```
+dvc pull
+```
+This brings into your local the already preprocessed file: `data/preprocessing_output/test.parquet.gzip`
+
+To work in your features, create a new branch and version your own files with `dvc` inside your branch.
