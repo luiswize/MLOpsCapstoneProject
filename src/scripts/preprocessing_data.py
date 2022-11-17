@@ -4,6 +4,7 @@ import email
 import re
 import os 
 from typing import List
+from tqdm import tqdm
 
 
 def parse_email_document(path: str) -> pd.DataFrame:
@@ -81,7 +82,7 @@ def get_email_paths(root_directory: str):
     return files_to_scratch
 
 
-def test_parse_multiple_emails_document(files: List[str]) -> pd.DataFrame:
+def parse_multiple_emails_document(files: List[str]) -> pd.DataFrame:
     """
     Parse list of mails into a dataframe
     """
@@ -90,8 +91,20 @@ def test_parse_multiple_emails_document(files: List[str]) -> pd.DataFrame:
        'X-cc', 'X-bcc', 'X-Folder', 'X-Origin', 'X-FileName', 'body']
     complete_df = pd.DataFrame(columns=columns)
     
-    for path in files:
+    for path in tqdm(files):
         df = parse_email_document(path)
         complete_df = pd.concat([complete_df, df])
     
     return complete_df.reset_index(drop=True)
+
+
+if __name__ == "__main__":
+    maildir_path = '/Users/luis.morales/Desktop/MLOpsBootcamp/FinalProject/maildir'
+    output_path = '/Users/luis.morales/Desktop/MLOpsBootcamp/MLOpsCapstoneProject/data/preprocessing_output/parsedmails'
+    
+    maildir_paths = get_email_paths(maildir_path)
+    
+    maildir_df = parse_multiple_emails_document(maildir_paths)
+    
+    # maildir_df.to_parquet('./../data/preprocessing_output/test.parquet.gzip', compression='gzip', engine='fastparquet')
+    maildir_df.to_parquet(f"{output_path}.parquet.gzip", compression='gzip', engine='fastparquet')

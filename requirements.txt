@@ -1,6 +1,11 @@
-scikit-learn>=0.23
+scikit-learn
+spacy
 pandas
 seaborn
 matplotlib
 joblib
 numpy
+tqdm
+pyarrow
+fastparquet
+dvc
