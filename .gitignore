@@ -5,6 +5,8 @@ __pycache__/
 
 #data files controlled by dvc
 data/
+data
+result
 mlops-storage-key.json
 
 # C extensions

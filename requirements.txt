@@ -9,3 +9,4 @@ tqdm
 pyarrow
 fastparquet
 dvc
+nltk
