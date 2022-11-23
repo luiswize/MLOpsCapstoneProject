@@ -10,3 +10,4 @@ pyarrow
 fastparquet
 dvc
 nltk
+datasets
