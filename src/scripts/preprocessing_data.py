@@ -99,12 +99,20 @@ def parse_multiple_emails_document(files: List[str]) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    maildir_path = '/Users/luis.morales/Desktop/MLOpsBootcamp/FinalProject/maildir'
-    output_path = '/Users/luis.morales/Desktop/MLOpsBootcamp/MLOpsCapstoneProject/data/preprocessing_output/parsedmails'
+    not_spam_path = '/Users/luis.morales/Desktop/MLOpsBootcamp/MLOpsCapstoneProject/data/sagemaker-testing/not_spam'
+    spam_path = '/Users/luis.morales/Desktop/MLOpsBootcamp/MLOpsCapstoneProject/data/sagemaker-testing/spam'
     
-    maildir_paths = get_email_paths(maildir_path)
+    output_path = '/Users/luis.morales/Desktop/MLOpsBootcamp/MLOpsCapstoneProject/data/sagemaker-testing/Parsed'
     
-    maildir_df = parse_multiple_emails_document(maildir_paths)
+    
+    not_spam_paths = get_email_paths(not_spam_path)
+    spam_paths = get_email_paths(spam_path)
+    
+    
+    not_spam_df = parse_multiple_emails_document(not_spam_paths)
+    spam_df = parse_multiple_emails_document(spam_paths)
+    
     
     # maildir_df.to_parquet('./../data/preprocessing_output/test.parquet.gzip', compression='gzip', engine='fastparquet')
-    maildir_df.to_parquet(f"{output_path}.parquet.gzip", compression='gzip', engine='fastparquet')
+    not_spam_df.to_parquet(f"{output_path}/not_spam.parquet.gzip", compression='gzip', engine='fastparquet')
+    spam_df.to_parquet(f"{output_path}/spam.parquet.gzip", compression='gzip', engine='fastparquet')
