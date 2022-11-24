@@ -11,3 +11,5 @@ fastparquet
 dvc
 nltk
 datasets
+huggingface_hub
+ipywidgets
