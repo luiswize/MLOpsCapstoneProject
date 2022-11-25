@@ -2,7 +2,7 @@ from string import punctuation
 from dateutil import parser
 import email
 from re import sub
-from typing import List, Union
+from typing import List, Union, Tuple
 
 import pandas as pd
 import numpy as np
@@ -1152,17 +1152,13 @@ def normalize_input_email(email_df: pd.DataFrame) -> pd.DataFrame:
     
     return  email_df
 
-
-    
-if __name__ == '__main__':
-    # raw_email = "" #here goes the raw email file to parse
-    raw_email = raw_emails_examples[-2]
-    
+def generate_clasification_in_raw_email(raw_email: str, model) -> Tuple[str, pd.DataFrame]:
+    """
+    Parses raw email and classifies it in spam or not spam.
+    """
     parsed_email = parse_raw_email(raw_email)
     proccessed_email_df = parsed_email_processing(parsed_email)
     normalized_df = normalize_input_email(proccessed_email_df)
-    
-    model = SetFitModel.from_pretrained("lewispons/email-classifiers", cache_dir='pretrained-models')
     
     prediction = model(normalized_df['body_normalized'].to_list())    
     spam_result = 'Spam' if prediction[0] == 1 else 'Not Spam'
@@ -1171,9 +1167,33 @@ if __name__ == '__main__':
     normalized_df['spam_result'] = spam_result
     
     
-    restult = f"""The result of the mail: \n{raw_email} \nThe Email was classified as: {spam_result}"""
-    print(restult)
+    result = f"""The result of the mail: \n{raw_email} \nThe Email was classified as: {spam_result}"""
+    
+    return (result, normalized_df)
 
+
+def generate_clasification_in_body(email_body: str, model) -> Tuple[str, str]:
+    """
+    Classifies an email in spam or not, receives only the email body.
+    """
+    prediction = model([email_body]) 
+    spam_result = 'Spam' if prediction[0] == 1 else 'Not Spam'   
+    
+    result = f"""Email: \n{email_body} \n\nThe Email was classified as: {spam_result}"""
+    return (result, spam_result)
     
     
+if __name__ == '__main__':
+    model = SetFitModel.from_pretrained("lewispons/email-classifiers", cache_dir='pretrained-models')
     
+    """ Use this if the input of the API is the whole raw email
+    raw_email = raw_emails_examples[-2]
+    results = generate_clasification_in_raw_email(raw_email , model)
+    """
+    
+    #Use this if the input of the API is only the email body
+    email_body = test_not_spam_bodys[2]
+    results = generate_clasification_in_body(email_body, model)
+    
+    print(results[0])
+    print(results[1])
