@@ -8,6 +8,8 @@ data/
 data
 result
 mlops-storage-key.json
+models/hugging-faces-models/pretrained-models
+pretrained-models
 
 # C extensions
 *.so
