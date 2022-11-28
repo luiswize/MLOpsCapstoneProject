@@ -1178,7 +1178,6 @@ def generate_clasification_in_body(email_body: str, model) -> Tuple[str, str]:
     """
     email_body_df = pd.DataFrame({'body': [email_body]})
     normalized_df = normalize_input_email(email_body_df)
-    print(normalized_df.head())
     
     prediction = model(normalized_df['body_normalized'].to_list())    
     spam_result = 'Spam' if prediction[0] == 1 else 'Not Spam'   
