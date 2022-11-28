@@ -11,16 +11,26 @@ import multiprocessing as mp
 from sklearn.base import TransformerMixin, BaseEstimator
 from setfit import SetFitModel
 
+from fastapi import FastAPI
+
+import json
+from ibm_watson import NaturalLanguageUnderstandingV1
+from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
+from ibm_watson.natural_language_understanding_v1 \
+    import Features, EntitiesOptions, KeywordsOptions
+
 import warnings
 warnings.filterwarnings('ignore')
 
 
 '''
 NOTE: In the terminal set the cache folder for hugging face model files to avid warnings and possible failures
-    $ export TRANSFORMERS_CACHE=/Users/luis.morales/Desktop/MLOpsBootcamp/MLOpsCapstoneProject/models/hugging-faces-models/pretrained-models 
+    $ export TRANSFORMERS_CACHE=$HOME/Desktop/MLOpsBootcamp/MLOpsCapstoneProject/models/hugging-faces-models/pretrained
+    -models 
     $ export TOKENIZERS_PARALLELISM=true
 '''
 nlp = spacy.load("en_core_web_sm")
+app = FastAPI()
 
 class TextPreprocessor(BaseEstimator, TransformerMixin):
     
@@ -998,9 +1008,6 @@ http://www.you-click.net/ClickAction?func=S_TurnOffHtml&partname=talbots&uid=768
 
 
 
-
-
-
 	<title>Talbots Online</title>
 </head>
 
@@ -1184,20 +1191,49 @@ def generate_clasification_in_body(email_body: str, model) -> Tuple[str, str]:
     
     result = f"""Email: \n{email_body} \n\nThe Email was classified as: {spam_result}"""
     return (result, spam_result)
-    
-    
-if __name__ == '__main__':
+
+def obtain_sentiment_analysis(email_body: str) -> dict:
+     """
+     Obtains sentiment analysis of the email.
+     """
+
+     authenticator = IAMAuthenticator('{apiKey}')
+     natural_language_understanding = NaturalLanguageUnderstandingV1(
+      version='2022-04-07',
+      authenticator=authenticator)
+
+     natural_language_understanding.set_service_url('{url}')
+
+     response = natural_language_understanding.analyze(
+      text=email_body,
+      features=Features(
+       entities=EntitiesOptions(emotion=True, sentiment=True, limit=2),
+       keywords=KeywordsOptions(emotion=True, sentiment=True,
+                                limit=2))).get_result()
+
+     return(response)
+
+@app.post("/")
+async def inference(email_body : str):
+     print(email_body)
+
     # model = SetFitModel.from_pretrained("lewispons/email-classifiers", cache_dir='pretrained-models')
-    model = SetFitModel.from_pretrained("lewispons/large-email-classifier", cache_dir='pretrained-models')
+     model = SetFitModel.from_pretrained("lewispons/large-email-classifier", cache_dir='pretrained-models')
     
-    """ Use this if the input of the API is the whole raw email
-    raw_email = raw_emails_examples[-2]
-    results = generate_clasification_in_raw_email(raw_email , model)
-    """
+     """ Use this if the input of the API is the whole raw email
+     raw_email = raw_emails_examples[-2]
+     results = generate_clasification_in_raw_email(raw_email , model)
+     """
     
-    #Use this if the input of the API is only the email body
-    email_body = test_not_spam_bodys[2]
-    results = generate_clasification_in_body(email_body, model)
-    
-    print(results[0])
-    print(results[1])
+     #Use this if the input of the API is only the email body
+     #email_body = test_not_spam_bodys[2]
+     results = generate_clasification_in_body(email_body, model)
+     sentiment = obtain_sentiment_analysis(email_body)
+
+     result_dict = {
+      'spam': results[1],
+      'entities' : sentiment['entities'],
+      'keywords' : sentiment['keywords']
+     }
+
+     return(result_dict)
