@@ -1176,7 +1176,11 @@ def generate_clasification_in_body(email_body: str, model) -> Tuple[str, str]:
     """
     Classifies an email in spam or not, receives only the email body.
     """
-    prediction = model([email_body]) 
+    email_body_df = pd.DataFrame({'body': [email_body]})
+    normalized_df = normalize_input_email(email_body_df)
+    print(normalized_df.head())
+    
+    prediction = model(normalized_df['body_normalized'].to_list())    
     spam_result = 'Spam' if prediction[0] == 1 else 'Not Spam'   
     
     result = f"""Email: \n{email_body} \n\nThe Email was classified as: {spam_result}"""
@@ -1184,7 +1188,8 @@ def generate_clasification_in_body(email_body: str, model) -> Tuple[str, str]:
     
     
 if __name__ == '__main__':
-    model = SetFitModel.from_pretrained("lewispons/email-classifiers", cache_dir='pretrained-models')
+    # model = SetFitModel.from_pretrained("lewispons/email-classifiers", cache_dir='pretrained-models')
+    model = SetFitModel.from_pretrained("lewispons/large-email-classifier", cache_dir='pretrained-models')
     
     """ Use this if the input of the API is the whole raw email
     raw_email = raw_emails_examples[-2]
